@@ -1,4 +1,8 @@
+// srtf.c
+// Shortest Remaining Time First (Preemptive SJF)
+
 #include <stdio.h>
+#include <limits.h>
 
 int main() {
     int n;
@@ -6,32 +10,37 @@ int main() {
     printf("Enter number of processes: ");
     scanf("%d", &n);
 
-    int pid[n], at[n], bt[n], rt[n];
-    int ct[n], tat[n], wt[n];
+    int pid[20], at[20], bt[20], rt[20];
+    int ct[20], tat[20], wt[20];
 
-    for(int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         pid[i] = i + 1;
-        printf("\nEnter Arrival Time and Burst Time for Process %d: ", pid[i]);
-        scanf("%d %d", &at[i], &bt[i]);
-        rt[i] = bt[i];   // remaining time = burst time initially
+
+        printf("Enter Arrival Time for P%d: ", pid[i]);
+        scanf("%d", &at[i]);
+
+        printf("Enter Burst Time for P%d: ", pid[i]);
+        scanf("%d", &bt[i]);
+
+        rt[i] = bt[i];   // remaining time
     }
 
-    int completed = 0, time = 0, min = 9999, shortest = -1;
-    int finish_time;
+    int completed = 0, time = 0;
+    int min_rt, shortest = -1;
 
-    while(completed != n) {
+    while (completed < n) {
 
-        min = 9999;
+        min_rt = INT_MAX;
         shortest = -1;
 
-        for(int i = 0; i < n; i++) {
-            if(at[i] <= time && rt[i] > 0 && rt[i] < min) {
-                min = rt[i];
+        for (int i = 0; i < n; i++) {
+            if (at[i] <= time && rt[i] > 0 && rt[i] < min_rt) {
+                min_rt = rt[i];
                 shortest = i;
             }
         }
 
-        if(shortest == -1) {
+        if (shortest == -1) {
             time++;
             continue;
         }
@@ -39,11 +48,10 @@ int main() {
         rt[shortest]--;
         time++;
 
-        if(rt[shortest] == 0) {
+        if (rt[shortest] == 0) {
             completed++;
-            finish_time = time;
 
-            ct[shortest] = finish_time;
+            ct[shortest] = time;
             tat[shortest] = ct[shortest] - at[shortest];
             wt[shortest] = tat[shortest] - bt[shortest];
         }
@@ -53,12 +61,12 @@ int main() {
 
     printf("\nPID\tAT\tBT\tCT\tTAT\tWT\n");
 
-    for(int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",
+               pid[i], at[i], bt[i], ct[i], tat[i], wt[i]);
+
         total_wt += wt[i];
         total_tat += tat[i];
-
-        printf("%d\t%d\t%d\t%d\t%d\t%d\n",
-               pid[i], at[i], bt[i], ct[i], tat[i], wt[i]);
     }
 
     printf("\nAverage Turnaround Time = %.2f", total_tat / n);
