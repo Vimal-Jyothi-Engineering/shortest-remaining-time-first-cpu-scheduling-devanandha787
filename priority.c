@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <limits.h>
 
 struct process {
     char pid[10];
@@ -17,20 +19,23 @@ int main() {
     scanf("%s", first);
 
     if(isdigit(first[0])) {
-        n = first[0] - '0';
+
+        n = atoi(first);
 
         for(int i = 0; i < n; i++) {
             scanf("%s %d %d", p[i].pid, &p[i].at, &p[i].bt);
             p[i].rt = p[i].bt;
         }
+
     } 
     else {
+
         sscanf(first, "%s", p[0].pid);
         scanf("%d %d", &p[0].at, &p[0].bt);
         p[0].rt = p[0].bt;
         n = 1;
 
-        while(scanf("%s %d %d", p[n].pid, &p[n].at, &p[n].bt) == 3) {
+        while(n < 20 && scanf("%s %d %d", p[n].pid, &p[n].at, &p[n].bt) == 3) {
             p[n].rt = p[n].bt;
             n++;
         }
@@ -41,7 +46,7 @@ int main() {
 
     while(completed < n) {
 
-        min_rt = 9999;
+        min_rt = INT_MAX;
         min_index = -1;
 
         for(int i = 0; i < n; i++) {
@@ -60,6 +65,7 @@ int main() {
         time++;
 
         if(p[min_index].rt == 0) {
+
             completed++;
 
             p[min_index].ct = time;
