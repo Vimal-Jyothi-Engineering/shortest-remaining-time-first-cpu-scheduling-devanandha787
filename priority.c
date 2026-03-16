@@ -1,88 +1,80 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <limits.h>
-#include <ctype.h>
 
-struct process {
+struct Process {
     char pid[10];
-    int at, bt, rt;
-    int ct, wt, tat;
+    int at;
+    int bt;
+    int rt;
+    int ct;
+    int wt;
+    int tat;
 };
 
 int main() {
-    struct process p[20];
-    int n = 0;
-    char first[10];
 
-    scanf("%s", first);
+    int n;
+    scanf("%d",&n);
 
-    if (isdigit(first[0])) {
-        n = atoi(first);
-        for (int i = 0; i < n; i++) {
-            scanf("%s %d %d", p[i].pid, &p[i].at, &p[i].bt);
-            p[i].rt = p[i].bt;
-        }
-    } else {
-        sscanf(first, "%s", p[0].pid);
-        scanf("%d %d", &p[0].at, &p[0].bt);
-        p[0].rt = p[0].bt;
-        n = 1;
+    struct Process p[20];
 
-        while (n < 20 && scanf("%s %d %d", p[n].pid, &p[n].at, &p[n].bt) == 3) {
-            p[n].rt = p[n].bt;
-            n++;
-        }
+    for(int i=0;i<n;i++){
+        scanf("%s %d %d",p[i].pid,&p[i].at,&p[i].bt);
+        p[i].rt = p[i].bt;
     }
 
-    int completed = 0, time = 0;
-    int min_rt, min_index;
+    int completed = 0;
+    int time = 0;
 
-    while (completed < n) {
-        min_rt = INT_MAX;
-        min_index = -1;
+    while(completed < n){
 
-        for (int i = 0; i < n; i++) {
-            if (p[i].at <= time && p[i].rt > 0 && p[i].rt < min_rt) {
+        int min_rt = INT_MAX;
+        int index = -1;
+
+        for(int i=0;i<n;i++){
+            if(p[i].at <= time && p[i].rt > 0 && p[i].rt < min_rt){
                 min_rt = p[i].rt;
-                min_index = i;
+                index = i;
             }
         }
 
-        if (min_index == -1) {
+        if(index == -1){
             time++;
             continue;
         }
 
-        p[min_index].rt--;
+        p[index].rt--;
         time++;
 
-        if (p[min_index].rt == 0) {
+        if(p[index].rt == 0){
             completed++;
-            p[min_index].ct = time;
-            p[min_index].tat = p[min_index].ct - p[min_index].at;
-            p[min_index].wt = p[min_index].tat - p[min_index].bt;
 
-            if (p[min_index].wt < 0)
-                p[min_index].wt = 0;
+            p[index].ct = time;
+            p[index].tat = p[index].ct - p[index].at;
+            p[index].wt = p[index].tat - p[index].bt;
+
+            if(p[index].wt < 0)
+                p[index].wt = 0;
         }
     }
 
-    float avg_wt = 0, avg_tat = 0;
+    float avg_wt = 0;
+    float avg_tat = 0;
 
     printf("Waiting Time:\n");
-    for (int i = 0; i < n; i++) {
-        printf("%s %d\n", p[i].pid, p[i].wt);
+    for(int i=0;i<n;i++){
+        printf("%s %d\n",p[i].pid,p[i].wt);
         avg_wt += p[i].wt;
     }
 
     printf("Turnaround Time:\n");
-    for (int i = 0; i < n; i++) {
-        printf("%s %d\n", p[i].pid, p[i].tat);
+    for(int i=0;i<n;i++){
+        printf("%s %d\n",p[i].pid,p[i].tat);
         avg_tat += p[i].tat;
     }
 
-    printf("Average Waiting Time: %.1f\n", avg_wt / n);
-    printf("Average Turnaround Time: %.1f\n", avg_tat / n);
+    printf("Average Waiting Time: %.1f\n",avg_wt/n);
+    printf("Average Turnaround Time: %.1f\n",avg_tat/n);
 
     return 0;
 }
