@@ -1,92 +1,68 @@
 #include <stdio.h>
-#include <ctype.h>
-
-struct process {
-    char pid[10];
-    int at, bt, rt;
-    int ct, wt, tat;
-};
 
 int main() {
+    int n;
 
-    struct process p[20];
-    int n = 0;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
 
-    char first[10];
+    int pid[n], at[n], bt[n], rt[n];
+    int ct[n], tat[n], wt[n];
 
-    scanf("%s", first);
-
-    if(isdigit(first[0])) {
-        n = first[0] - '0';
-
-        for(int i = 0; i < n; i++) {
-            scanf("%s %d %d", p[i].pid, &p[i].at, &p[i].bt);
-            p[i].rt = p[i].bt;
-        }
-    } 
-    else {
-        sscanf(first, "%s", p[0].pid);
-        scanf("%d %d", &p[0].at, &p[0].bt);
-        p[0].rt = p[0].bt;
-        n = 1;
-
-        while(scanf("%s %d %d", p[n].pid, &p[n].at, &p[n].bt) == 3) {
-            p[n].rt = p[n].bt;
-            n++;
-        }
+    for(int i = 0; i < n; i++) {
+        pid[i] = i + 1;
+        printf("\nEnter Arrival Time and Burst Time for Process %d: ", pid[i]);
+        scanf("%d %d", &at[i], &bt[i]);
+        rt[i] = bt[i];   // remaining time = burst time initially
     }
 
-    int completed = 0, time = 0, min_index;
-    int min_rt;
+    int completed = 0, time = 0, min = 9999, shortest = -1;
+    int finish_time;
 
-    while(completed < n) {
+    while(completed != n) {
 
-        min_rt = 9999;
-        min_index = -1;
+        min = 9999;
+        shortest = -1;
 
         for(int i = 0; i < n; i++) {
-            if(p[i].at <= time && p[i].rt > 0 && p[i].rt < min_rt) {
-                min_rt = p[i].rt;
-                min_index = i;
+            if(at[i] <= time && rt[i] > 0 && rt[i] < min) {
+                min = rt[i];
+                shortest = i;
             }
         }
 
-        if(min_index == -1) {
+        if(shortest == -1) {
             time++;
             continue;
         }
 
-        p[min_index].rt--;
+        rt[shortest]--;
         time++;
 
-        if(p[min_index].rt == 0) {
+        if(rt[shortest] == 0) {
             completed++;
+            finish_time = time;
 
-            p[min_index].ct = time;
-            p[min_index].tat = p[min_index].ct - p[min_index].at;
-            p[min_index].wt = p[min_index].tat - p[min_index].bt;
-
-            if(p[min_index].wt < 0)
-                p[min_index].wt = 0;
+            ct[shortest] = finish_time;
+            tat[shortest] = ct[shortest] - at[shortest];
+            wt[shortest] = tat[shortest] - bt[shortest];
         }
     }
 
-    float avg_wt = 0, avg_tat = 0;
+    float total_wt = 0, total_tat = 0;
 
-    printf("Waiting Time:\n");
+    printf("\nPID\tAT\tBT\tCT\tTAT\tWT\n");
+
     for(int i = 0; i < n; i++) {
-        printf("%s %d\n", p[i].pid, p[i].wt);
-        avg_wt += p[i].wt;
+        total_wt += wt[i];
+        total_tat += tat[i];
+
+        printf("%d\t%d\t%d\t%d\t%d\t%d\n",
+               pid[i], at[i], bt[i], ct[i], tat[i], wt[i]);
     }
 
-    printf("Turnaround Time:\n");
-    for(int i = 0; i < n; i++) {
-        printf("%s %d\n", p[i].pid, p[i].tat);
-        avg_tat += p[i].tat;
-    }
-
-    printf("Average Waiting Time: %.1f\n", avg_wt/n);
-    printf("Average Turnaround Time: %.1f\n", avg_tat/n);
+    printf("\nAverage Turnaround Time = %.2f", total_tat / n);
+    printf("\nAverage Waiting Time = %.2f\n", total_wt / n);
 
     return 0;
 }
